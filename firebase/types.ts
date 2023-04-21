@@ -1,12 +1,18 @@
 type EatRequest = {
   location: string,
-  time: string,
+  timestamp: string,
   requester: string
 }
 
 type User = {
-  name: String,
-  activeRequests: String,
+  name: string,
+  activeRequests: string,
 }
 
-export {EatRequest, User};
+type Message = {
+  id: string,
+  timestamp: string,
+  content: string
+}
+
+export {EatRequest, User, Message};
