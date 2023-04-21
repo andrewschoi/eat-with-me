@@ -4,4 +4,9 @@ type EatRequest = {
   requester: string
 }
 
-export {EatRequest};
+type User = {
+  name: String,
+  activeRequests: String,
+}
+
+export {EatRequest, User};
