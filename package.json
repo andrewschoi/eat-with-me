@@ -14,6 +14,7 @@
     "@types/react": "~18.0.27",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "expo": "~48.0.11",
+    "expo-location": "~15.1.1",
     "expo-status-bar": "~1.4.4",
     "firebase": "^9.20.0",
     "react": "18.2.0",
