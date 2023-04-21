@@ -15,4 +15,11 @@ type Message = {
   content: string
 }
 
-export {EatRequest, User, Message};
+type DiningHall = {
+  latitude: number,
+  longitude: number,
+  name: string
+}
+
+
+export {EatRequest, User, Message, DiningHall};

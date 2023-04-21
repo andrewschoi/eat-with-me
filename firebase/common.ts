@@ -1,6 +1,39 @@
 import { collection, query, where, onSnapshot, DocumentData, Query, setDoc, doc, getDocs} from "firebase/firestore";
 import {db} from "./config";
-import { EatRequest, User, Message } from "./types";
+import { EatRequest, User, Message, DiningHall } from "./types";
+import { DINING_HALLS } from "./constants";
+import * as Location from "expo-location"
+
+const toRadians = (degrees : number) : number => degrees * (Math.PI / 180);
+
+const haversineDistance = (lat1: number, long1: number, lat2: number, long2: number) : number=> {
+  const R = 6371; // Earth's mean radius in km
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(long2 - long1);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c;
+  return d;
+};
+
+const inRadius = (lat1: number, long1: number, lat2: number, long2: number, rad: number) : boolean => {
+  const distance = haversineDistance(lat1, long1, lat2, long2);
+  return distance <= rad;
+};
+
+const getLocationsInRadius = (locObj : Location.LocationObject) : string[] => {
+  const latitude = locObj.coords.latitude
+  const longitude = locObj.coords.longitude
+
+  return DINING_HALLS.filter(diningHall => {
+    const otherLatitude = diningHall.latitude
+    const otherLongitude = diningHall.longitude
+    return inRadius(latitude, longitude, otherLatitude, otherLongitude, 2)
+  }).map(diningHall => diningHall.name)
+}
+
 
 const createRequestsQuery = (loc: string) : Query => {
   return query(collection(db, "requests"), where("location", "==", loc));
@@ -116,4 +149,4 @@ const createUser = async (name : string) : Promise<boolean> => {
   return false
 }
 
-export {requestsListener, getRequests, addRequest, createUser, getUser, addMessage, messageListener}
+export {requestsListener, getRequests, addRequest, createUser, getUser, addMessage, messageListener, getLocationsInRadius}
