@@ -1,23 +1,21 @@
 import React, {ReactNode, createContext, useEffect, useState} from "react"
 import {User} from "../firebase/types"
+import * as BE from "../firebase/common"
 import * as Location from "expo-location"
 
 interface IUserContext {
-  isLogin: boolean,
-  setIsLogin: React.Dispatch<React.SetStateAction<boolean>>,
   user: User | null,
   setUser: React.Dispatch<React.SetStateAction<User | null>>
-  location: Location.LocationObject | null
+  locations: string[]
 }
 
 const userContext = createContext<IUserContext | null>(null)
 
 export default userContext;
 
-const UserProvider = (children: ReactNode) => {
+const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
-  const [isLogin, setIsLogin] = useState<boolean>(false)
-  const [location, setLocation] = useState<Location.LocationObject | null>(null)
+  const [locations, setLocations] = useState<string[]>([])
 
   useEffect(() => {
     const getPermissions = async () => {
@@ -26,7 +24,8 @@ const UserProvider = (children: ReactNode) => {
         return
       }
       const currentLocation = await Location.getCurrentPositionAsync({})
-      setLocation(currentLocation)
+      const locationsInRadius = BE.getLocationsInRadius(currentLocation)
+      setLocations(locationsInRadius)
     }
     getPermissions()
   }, [])
@@ -34,9 +33,7 @@ const UserProvider = (children: ReactNode) => {
   const userContextValue = {
     user,
     setUser,
-    isLogin,
-    setIsLogin,
-    location
+    locations
   }
 
   return <userContext.Provider value={userContextValue}>{children}</userContext.Provider>

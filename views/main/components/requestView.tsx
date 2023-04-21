@@ -3,10 +3,13 @@ import { EatRequest } from "../../../firebase/types"
 import { ScrollView } from "react-native"
 import RequestRow from "./row"
 
-const RequestsView = (requests: EatRequest[]) => {
-  return <ScrollView>
-    {requests.map(req => RequestRow(req))}
-  </ScrollView>
+const RequestsView = ({ requests }: {requests: EatRequest[]}) => {
+  console.log(requests)
+  return (
+    <ScrollView>
+      {requests.map(req => <RequestRow key={req.requester} request={req} />)}
+    </ScrollView>
+  );
 }
 
-export default RequestsView
+export default RequestsView;

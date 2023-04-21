@@ -1,32 +1,46 @@
-import React, {useState, useEffect} from "react"
-import {Text, View} from 'react-native';
+import React, {useState, useEffect, useContext} from "react"
+import { View, Text} from 'react-native';
 import RequestView from "./components/requestView";
-import * as Location from "expo-location"
+import userContext from "../../contexts/userContext";
 
-import { requestsListener, getRequests } from "../../firebase/common";
+import * as BE from "../../firebase/common";
 import { EatRequest } from "../../firebase/types";
 
 const Main = () => {
-  const [unmatchedReq, setUnmatchedReq] = useState<EatRequest[]>([])
-  const [location, setLocation] = useState<Location.LocationObject>()
+  const UserContext = useContext(userContext)
+  const [openRequests, setOpenRequests] = useState<EatRequest[]>([])
 
-  const handleSnapshotChange = (requests : EatRequest[]) => {
-    setUnmatchedReq(requests)
+  const handleListenerChange = (requests : EatRequest[], loc: string) => {
+    const openReq = openRequests.filter(req => req.location !== loc).concat(requests);
+    setOpenRequests(() => openReq)
   }
 
   useEffect(() => { 
     const fetchRequests = async () => {
-      const current_req = await getRequests("morrison");
-      setUnmatchedReq(() => current_req);
+      const requests: Promise<EatRequest[]>[] = []
+      if (UserContext?.locations) {
+        UserContext.locations.forEach(loc => requests.push(BE.getRequests(loc)))
+      }
+      
+      const openReq = (await Promise.all(requests)).flat()
+      setOpenRequests(() => openReq);
     }
-    
+
+    const createListeners = () => {
+      if (UserContext?.locations) {
+        const listeners = UserContext.locations.map(loc => BE.requestsListener(loc, handleListenerChange))
+        return () => listeners.forEach(unsub => unsub())
+      }
+      return () => {return}
+    }
+    const unsubscribeListeners = createListeners()
     fetchRequests();
-    const unsub = requestsListener("morrison", handleSnapshotChange);
-    return () => unsub()
-  }, [])
+    
+    return () => unsubscribeListeners()
+  }, [UserContext?.locations])
 
   return <View>
-    {RequestView(unmatchedReq)}
+  <RequestView requests={openRequests}/>
   </View>
 }
 

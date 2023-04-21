@@ -30,7 +30,7 @@ const getLocationsInRadius = (locObj : Location.LocationObject) : string[] => {
   return DINING_HALLS.filter(diningHall => {
     const otherLatitude = diningHall.latitude
     const otherLongitude = diningHall.longitude
-    return inRadius(latitude, longitude, otherLatitude, otherLongitude, 2)
+    return inRadius(latitude, longitude, otherLatitude, otherLongitude, 1)
   }).map(diningHall => diningHall.name)
 }
 
@@ -125,11 +125,11 @@ const getRequests = async (loc: string) : Promise<EatRequest[]> => {
   return requests;
 }
 
-const requestsListener = (loc : string, handler : (arg1 : EatRequest[]) => any) : () => void => {
+const requestsListener = (loc : string, handler : (arg1 : EatRequest[], arg2 : string) => any) : () => void => {
   const unsubscribe = onSnapshot(createRequestsQuery(loc), (querySnapshot) => {
     const requests: EatRequest[] = [];
     querySnapshot.forEach(doc => requests.push(requestConverter(doc)));
-    handler(requests)
+    handler(requests, loc)
   })
   return () => unsubscribe()
 } 
