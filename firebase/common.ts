@@ -1,4 +1,4 @@
-import { collection, query, where, onSnapshot, DocumentData, Query, setDoc, doc, getDocs} from "firebase/firestore";
+import { collection, query, where, onSnapshot, DocumentData, Query, setDoc, doc, getDocs, deleteDoc} from "firebase/firestore";
 import {db} from "./config";
 import { EatRequest, User, Message, DiningHall } from "./types";
 import { DINING_HALLS } from "./constants";
@@ -48,6 +48,14 @@ const createMessageId = (user1 : User, user2: User) : string => {
   id.sort()
   return id.join("")
 }
+
+const createRequestId = (name: string, loc: string) : string => {
+  return name.concat(loc)
+}
+
+const getRequestId = (req: EatRequest) : string => {
+  return req.requester.concat(req.location)
+} 
 
 const createEatRequests = (loc: string, requester: string) : EatRequest => {
   return {
@@ -112,7 +120,7 @@ const getUser = async (name : string) => {
 }
 
 const addRequest = async (user: User, loc: string) : Promise<boolean> => {
-  const docRef = doc(collection(db, "requests"));
+  const docRef = doc(collection(db, "requests", createRequestId(user.name, loc)));
   const request = createEatRequests(loc, user.name)
   const success = setDoc(docRef, request).then(() => true).catch(() => false)
   return success
@@ -139,7 +147,7 @@ const createUser = async (name : string) : Promise<boolean> => {
   const querySnapshot = await getDocs(q)
   const userExists = querySnapshot.size > 0
   if (!userExists) {
-    const docRef = doc(collection(db, "users"))
+    const docRef = doc(collection(db, "users", name))
     setDoc(docRef, {
       "name": name,
       "activeRequests": 0
@@ -149,4 +157,7 @@ const createUser = async (name : string) : Promise<boolean> => {
   return false
 }
 
-export {requestsListener, getRequests, addRequest, createUser, getUser, addMessage, messageListener, getLocationsInRadius}
+const removeRequest = async (req: EatRequest) => {
+  await deleteDoc(doc(db, "requests", getRequestId(req)))
+}
+export {requestsListener, getRequests, addRequest, createUser, getUser, addMessage, messageListener, getLocationsInRadius, removeRequest}
