@@ -43,7 +43,6 @@ const createUserQuery = (name : string) : Query => {
   return query(collection(db, "users"), where("name", "==", name))
 }
 
-
 const createMessageId = (user1 : string, user2: string) : string => {
   const id: string[] = [user1, user2];
   id.sort()
@@ -68,7 +67,7 @@ const createEatRequests = (loc: string, requester: string) : EatRequest => {
 
 const createMessage = (user1: string, user2: string, content: string) : Message => {
   return {
-    "id": createMessageId(user1, user2),
+    "id": [user1, user2],
     "timestamp": new Date().toLocaleTimeString(),
     "content": content
   }
@@ -137,6 +136,13 @@ const addRequest = async (user: User, loc: string) : Promise<boolean> => {
   return success
 }
 
+const getReceivers = async (user : string) => {
+  const q = query(collection(db, "conversations"), where("id", "array-contains", user));
+  const querySnapshot = await getDocs(q)
+  const receivers = querySnapshot.docs.map(doc => messageConverter(doc.data()).id.filter(mem => mem !== user)).flat()
+  return receivers
+}
+
 const getRequests = async (loc: string) : Promise<EatRequest[]> => {
   const requests: EatRequest[] = [];
   const docs = await getDocs(createRequestsQuery(loc));
@@ -171,4 +177,4 @@ const createUser = async (name : string) : Promise<boolean> => {
 const removeRequest = async (req: EatRequest) => {
   await deleteDoc(doc(db, "requests", getRequestId(req)))
 }
-export {requestsListener, getRequests, addRequest, createUser, getUser, addMessage, messageListener, getLocationsInRadius, removeRequest, getMessages}
+export {requestsListener, getRequests, addRequest, createUser, getUser, addMessage, messageListener, getLocationsInRadius, removeRequest, getMessages, getReceivers}

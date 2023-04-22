@@ -10,7 +10,7 @@ type User = {
 }
 
 type Message = {
-  id: string,
+  id: string[],
   timestamp: string,
   content: string
 }
