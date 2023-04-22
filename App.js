@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 import Main from "./views/main";
+import Messaging from "./views/messaging";
 import { UserProvider } from "./contexts/userContext";
 
 const Tab = createBottomTabNavigator();
@@ -19,7 +20,21 @@ export default function App() {
             name="main"
             component={Main}
             options={{
-              title: "Main Page",
+              title: "Main",
+              tabBarIcon: ({ size, color }) => (
+                <MaterialCommunityIcons
+                  name="message"
+                  size={size}
+                  color={color}
+                />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="message"
+            component={Messaging}
+            options={{
+              title: "Messaging",
               tabBarIcon: ({ size, color }) => (
                 <MaterialCommunityIcons name="home" size={size} color={color} />
               ),
