@@ -165,7 +165,8 @@ const getUser = async (name : string) => {
 }
 
 const addRequest = async (user: string, loc: string) : Promise<boolean> => {
-  const docRef = doc(collection(db, "requests", createRequestId(user, loc)));
+  const requestId = createRequestId(user, loc)
+  const docRef = doc(collection(db, "requests"), requestId);
   const request = createEatRequests(loc, user)
   const success = setDoc(docRef, request).then(() => true).catch(() => false)
   return success
@@ -199,7 +200,7 @@ const createUser = async (name : string) : Promise<boolean> => {
   const querySnapshot = await getDocs(q)
   const userExists = querySnapshot.size > 0
   if (!userExists) {
-    const docRef = doc(collection(db, "users", name))
+    const docRef = doc(collection(db, "users"), name)
     setDoc(docRef, {
       "name": name,
       "activeRequests": 0
