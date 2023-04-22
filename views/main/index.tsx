@@ -5,7 +5,7 @@ import { EatRequest } from "../../firebase/types";
 import { createStackNavigator } from "@react-navigation/stack";
 import RequestView from "./components/requestView";
 import RequestDetail from "./components/requestDetail";
-import { View, Text } from "react-native";
+import RequestForm from "./components/requestForm";
 const Stack = createStackNavigator();
 
 const Main = () => {
@@ -49,7 +49,7 @@ const Main = () => {
   }, [UserContext?.locations]);
 
   return (
-    <Stack.Navigator initialRouteName="Requests">
+    <Stack.Navigator initialRouteName="Form">
       <Stack.Screen
         name={"Requests"}
         children={(props) => (
@@ -59,6 +59,10 @@ const Main = () => {
       <Stack.Screen
         name={"Detail"}
         children={(props) => <RequestDetail request={null} {...props} />}
+      />
+      <Stack.Screen
+        name={"Form"}
+        children={(props) => <RequestForm {...props} />}
       />
     </Stack.Navigator>
   );

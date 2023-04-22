@@ -164,9 +164,9 @@ const getUser = async (name : string) => {
   return null
 }
 
-const addRequest = async (user: User, loc: string) : Promise<boolean> => {
-  const docRef = doc(collection(db, "requests", createRequestId(user.name, loc)));
-  const request = createEatRequests(loc, user.name)
+const addRequest = async (user: string, loc: string) : Promise<boolean> => {
+  const docRef = doc(collection(db, "requests", createRequestId(user, loc)));
+  const request = createEatRequests(loc, user)
   const success = setDoc(docRef, request).then(() => true).catch(() => false)
   return success
 }
