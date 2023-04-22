@@ -14,7 +14,7 @@ const Messaging = () => {
   const handleListenerChange = (messages: Message[]) => {
     setMessages(() => messages)
   }
-
+  
   useEffect(() => {
     const fetchMessages = async () => {
       if (UserContext?.user?.name) {
