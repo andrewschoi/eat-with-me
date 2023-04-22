@@ -17,9 +17,9 @@ const Messaging = (user1 : string, user2 : string) => {
       const msg = await BE.getMessages(user1, user2)
       setMessages(msg)
     }
-    // const unsubscribe = BE.messageListener(user1, user2, handleListenerChange)
+    const unsubscribe = BE.messageListener(user1, user2, handleListenerChange)
     fetchMessages()
-    return () => {return}
+    return () => unsubscribe()
   }, [])
 
   return <SafeAreaView>
