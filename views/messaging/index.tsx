@@ -7,8 +7,9 @@ import userContext from "../../contexts/userContext";
 import * as BE from "../../firebase/common"
 
 
-const Messaging = (receiver : string) => {
+const Messaging = () => {
   const [messages, setMessages] = useState<Message[]>()
+  const [receiver, setReceiver] = useState<string>("")
   const UserContext = useContext(userContext)
   const handleListenerChange = (messages: Message[]) => {
     setMessages(() => messages)
