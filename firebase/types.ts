@@ -21,5 +21,10 @@ type DiningHall = {
   name: string
 }
 
+type PendingMatch = {
+  people: string[],
+  location: string,
+  timestamp: string
+}
 
-export {EatRequest, User, Message, DiningHall};
+export {EatRequest, User, Message, DiningHall, PendingMatch};

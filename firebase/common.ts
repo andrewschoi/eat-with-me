@@ -1,6 +1,6 @@
 import { collection, query, where, onSnapshot, DocumentData, Query, setDoc, doc, getDocs, deleteDoc} from "firebase/firestore";
 import {db} from "./config";
-import { EatRequest, User, Message, DiningHall } from "./types";
+import { EatRequest, User, Message, DiningHall, PendingMatch } from "./types";
 import { DINING_HALLS } from "./constants";
 import * as Location from "expo-location"
 
@@ -73,6 +73,22 @@ const createMessage = (user1: string, user2: string, content: string) : Message 
   }
 }
 
+const createPendingMatch = (user1: string, user2: string, location: string) => {
+  return {
+    "people": [user1, user2],
+    "location": location,
+    "timestamp": new Date().toLocaleDateString()
+  }
+}
+
+const pendingMatchConverter = (doc: DocumentData) : PendingMatch => {
+  return {
+    "people": doc.data().people,
+    "location": doc.data().location,
+    "timestamp": doc.data().timestamp
+  }
+}
+
 const requestConverter = (doc: DocumentData) : EatRequest  => {
   return {
     location: doc.data().location, 
@@ -94,6 +110,25 @@ const messageConverter = (doc : DocumentData) : Message => {
     "timestamp": doc.data().timestamp,
     "content": doc.data().content
   }
+}
+
+const addPendingMatch = async (user1: string, user2: string, location: string) => {
+  const pendingMatch = createPendingMatch(user1, user2, location)
+  const docRef = doc(collection(db, "pendingMatches"))
+  const success = await setDoc(docRef, pendingMatch).then(() => true).catch(() => false)
+  return success
+}
+
+const getPendingMatch = async (user: string) => {
+  const q = query(collection(db, "pendingMatch"), where("people", "array-contains", user))
+  const querySnapshot = await getDocs(q)
+  return querySnapshot.docs.map(doc => pendingMatchConverter(doc))
+}
+
+const deletePendingMatch = async (user: string) => {
+  const q = query(collection(db, "pendingMatch"), where("people", "array-contains", user))
+  const querySnapshot = await getDocs(q)
+  querySnapshot.docs.forEach(docu => deleteDoc(doc(db, "pendingMatch", docu.id)))
 }
 
 const messageListener = (user1: string, user2: string, handler: (arg1: Message[]) => any) : () => void => {
@@ -177,4 +212,4 @@ const createUser = async (name : string) : Promise<boolean> => {
 const removeRequest = async (req: EatRequest) => {
   await deleteDoc(doc(db, "requests", getRequestId(req)))
 }
-export {requestsListener, getRequests, addRequest, createUser, getUser, addMessage, messageListener, getLocationsInRadius, removeRequest, getMessages, getReceivers}
+export {requestsListener, getRequests, addRequest, createUser, getUser, addMessage, messageListener, getLocationsInRadius, removeRequest, getMessages, getReceivers, addPendingMatch, deletePendingMatch, getPendingMatch}
