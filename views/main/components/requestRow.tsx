@@ -37,19 +37,19 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     padding: 20,
-    height: 100,
+    height: 150,
     marginHorizontal: 15,
     marginVertical: 10,
     backgroundColor: 'black',
-    borderRadius: 25,
+    borderRadius: 10,
     borderColor: 'black',
     borderWidth: 2,
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   textContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   text: {
     fontSize: 32,
@@ -61,19 +61,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: 'gray'
   },
-  linearGradient: {
-    flex: 1,
-    paddingLeft: 15,
-    paddingRight: 15,
-    borderRadius: 5
-  },
   acceptButton: {
     backgroundColor: 'green',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
     alignSelf: 'center',
-    marginLeft: 40,
+    marginTop: 60,
   },
   buttonText: {
     color: 'white',
