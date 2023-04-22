@@ -29,11 +29,11 @@ To run the EatWithMe app on your local machine, follow these steps:
 
 3. Install dependencies:
 
-      ```npm install```
+      ```yarn install```
 
 4. Run the app:
 
-      ```npm start```
+      ```yarn start```
 
 5. Install the Expo Go app on your mobile device and scan the QR code that appears in your terminal to open the app.
 
