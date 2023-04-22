@@ -1,15 +1,25 @@
-import React from "react"
-import {Text, View} from 'react-native';
-import {EatRequest} from "../../../firebase/types"
-import * as BE from "../../../firebase/common"
+import React from "react";
+import { View, Text, Pressable } from "react-native";
+import { EatRequest } from "../../../firebase/types";
+import { StackNavigationProp } from "@react-navigation/stack";
 
-const RequestRow = ({request} : {request: EatRequest}) => {
-  const handleAcceptRequest = (req: EatRequest) => {
-    BE.removeRequest(req)
-  } 
-  
+type RequestRowProps = {
+  request: EatRequest;
+  navigation: StackNavigationProp<any>;
+};
 
-  return <View><Text>{request.requester}, {request.location}, {request.timestamp}</Text></View>
-}
+const RequestRow = ({ request, navigation }: RequestRowProps) => {
+  const handleNavigateToDetail = () => {
+    navigation.navigate("Detail", { request: request });
+  };
 
-export default RequestRow
+  return (
+    <View>
+      <Pressable onPress={handleNavigateToDetail}>
+        <Text>Learn more about this request</Text>
+      </Pressable>
+    </View>
+  );
+};
+
+export default RequestRow;

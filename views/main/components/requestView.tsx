@@ -1,15 +1,27 @@
 import React from "react";
-import { EatRequest } from "../../../firebase/types";
-import { ScrollView } from "react-native";
+import { View, ScrollView, Button, Text } from "react-native";
 import RequestRow from "./requestRow";
+import { StackScreenProps } from "@react-navigation/stack";
+import { EatRequest } from "../../../firebase/types";
 
+type RequestViewProps = StackScreenProps<any> & {
+  openRequests: EatRequest[];
+};
 
-const RequestsView = ({ requests }: {requests: EatRequest[]}) => {
+const RequestView = ({ navigation, openRequests }: RequestViewProps) => {
   return (
-    <ScrollView>
-      {requests.map(req => <RequestRow key={req.requester}request={req}/>)}
-    </ScrollView>
+    <View>
+      <ScrollView>
+        {openRequests.map((req: any) => (
+          <RequestRow
+            key={req.requester}
+            request={req}
+            navigation={navigation}
+          />
+        ))}
+      </ScrollView>
+    </View>
   );
 };
 
-export default RequestsView;
+export default RequestView;
