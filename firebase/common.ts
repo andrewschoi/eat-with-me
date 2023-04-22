@@ -43,10 +43,11 @@ const createUserQuery = (name : string) : Query => {
   return query(collection(db, "users"), where("name", "==", name))
 }
 
-const createMessageId = (user1 : User, user2: User) : string => {
-  const id: string[] = [user1.name, user2.name];
+
+const createMessageId = (user1 : string, user2: string) : string => {
+  const id: string[] = [user1, user2];
   id.sort()
-  return id.join("")
+  return `${id[0]}-${id[1]}`
 }
 
 const createRequestId = (name: string, loc: string) : string => {
@@ -65,7 +66,7 @@ const createEatRequests = (loc: string, requester: string) : EatRequest => {
   }
 }
 
-const createMessage = (user1: User, user2: User, content: string) : Message => {
+const createMessage = (user1: string, user2: string, content: string) : Message => {
   return {
     "id": createMessageId(user1, user2),
     "timestamp": new Date().toLocaleTimeString(),
@@ -96,17 +97,27 @@ const messageConverter = (doc : DocumentData) : Message => {
   }
 }
 
-const messageListener = (user1: User, user2: User, handler: (arg1: Message[]) => any) : () => void => {
-  const unsubscribe = onSnapshot(collection(db, `conversations/${createMessageId(user1, user2)}`), (querySnapshot) => {
+const messageListener = (user1: string, user2: string, handler: (arg1: Message[]) => any) : () => void => {
+  const conversationId : string= createMessageId(user1, user2)
+  const messageRef = collection(db, `conversations/${conversationId}/messages`)
+  const unsubscribe = onSnapshot(messageRef, (querySnapshot) => {
     handler(querySnapshot.docs.map(doc => messageConverter(doc)))
   })
   return () => unsubscribe()
 }
 
-const addMessage = async (user1 : User, user2 : User, content: string) : Promise<boolean>=> {
-  const docRef = doc(collection(db, `conversations/${createMessageId(user1, user2)}`))
+const getMessages = async (user1: string, user2: string) : Promise<Message[]>=> {
+  const conversationId : string= createMessageId("user1", "user2")
+  const messageRef = collection(db, `conversations/${conversationId}/messages`)
+  const querySnapshot = await getDocs(messageRef)
+  return querySnapshot.docs.map(doc => messageConverter(doc))
+}
+
+const addMessage = async (user1 : string, user2 : string, content: string) : Promise<boolean>=> {
+  const conversationId : string = createMessageId(user1, user2)
+  const messageRef = doc(collection(db, `conversations/${conversationId}/messages`))
   const message = createMessage(user1, user2, content)
-  const success = setDoc(docRef, message).then(() => true).catch(() => false)
+  const success = setDoc(messageRef, message).then(() => true).catch(() => false)
   return success
 }
 
@@ -160,4 +171,4 @@ const createUser = async (name : string) : Promise<boolean> => {
 const removeRequest = async (req: EatRequest) => {
   await deleteDoc(doc(db, "requests", getRequestId(req)))
 }
-export {requestsListener, getRequests, addRequest, createUser, getUser, addMessage, messageListener, getLocationsInRadius, removeRequest}
+export {requestsListener, getRequests, addRequest, createUser, getUser, addMessage, messageListener, getLocationsInRadius, removeRequest, getMessages}
