@@ -7,6 +7,7 @@ const RequestRow = ({request} : {request: EatRequest}) => {
   const handleAcceptRequest = (req: EatRequest) => {
     BE.removeRequest(req)
   } 
+  
 
   return <View><Text>{request.requester}, {request.location}, {request.timestamp}</Text></View>
 }

@@ -1,10 +1,10 @@
 import React, {useState, useEffect, useContext} from "react"
-import { View, Text} from 'react-native';
 import RequestView from "./components/requestView";
 import userContext from "../../contexts/userContext";
-
+import {SafeAreaView} from "react-native"
 import * as BE from "../../firebase/common";
 import { EatRequest } from "../../firebase/types";
+
 
 const Main = () => {
   const UserContext = useContext(userContext)
@@ -39,9 +39,9 @@ const Main = () => {
     return () => unsubscribeListeners()
   }, [UserContext?.locations])
 
-  return <View>
-  <RequestView requests={openRequests}/>
-  </View>
+  return <SafeAreaView>
+    <RequestView requests={openRequests}/>
+    </SafeAreaView>
 }
 
 export default Main;
