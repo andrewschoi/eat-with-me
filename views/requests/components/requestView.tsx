@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ScrollView, Button, Text } from "react-native";
+import { View, ScrollView, Button, Text, Pressable } from "react-native";
 import RequestRow from "./requestRow";
 import { StackScreenProps } from "@react-navigation/stack";
 import { EatRequest } from "../../../firebase/types";
@@ -23,6 +23,9 @@ const RequestView = ({ navigation, openRequests }: RequestViewProps) => {
           />
         ))}
       </ScrollView>
+      <Pressable onPress={handleNavigateToForm}>
+        <Text>Create request</Text>
+      </Pressable>
     </View>
   );
 };
