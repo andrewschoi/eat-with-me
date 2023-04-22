@@ -2,7 +2,7 @@ import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-
+import { SafeAreaView } from "react-native";
 import Main from "./views/main";
 import Messaging from "./views/messaging";
 import { UserProvider } from "./contexts/userContext";
@@ -13,11 +13,11 @@ export default function App() {
     <UserProvider>
       <NavigationContainer>
         <Tab.Navigator
-          initialRouteName="main"
+          initialRouteName="Main"
           screenOptions={{ headerShown: false }}
         >
           <Tab.Screen
-            name="main"
+            name="Main"
             component={Main}
             options={{
               title: "Main",
@@ -31,7 +31,7 @@ export default function App() {
             }}
           />
           <Tab.Screen
-            name="message"
+            name="Messaging"
             component={Messaging}
             options={{
               title: "Messaging",
