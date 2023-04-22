@@ -1,37 +1,40 @@
-import React, {useState, useEffect, useContext} from "react";
-import MessageView from "./components/messageView";
-import TextController from "./components/textController";
-import {SafeAreaView} from 'react-native';
-import {Message} from "../../firebase/types"
+import React, { useState, useEffect, useContext } from "react";
 import userContext from "../../contexts/userContext";
-import * as BE from "../../firebase/common"
+import { createStackNavigator } from "@react-navigation/stack";
+import ConversationView from "./components/conversationsView";
+import MessagesView from "./components/messagesView";
+import * as BE from "../../firebase/common";
 
+const Stack = createStackNavigator();
 
 const Messaging = () => {
-  const [messages, setMessages] = useState<Message[]>()
-  const [receiver, setReceiver] = useState<string>("")
-  const UserContext = useContext(userContext)
-  const handleListenerChange = (messages: Message[]) => {
-    setMessages(() => messages)
-  }
-  
+  const [receivers, setReceivers] = useState<string[]>([]);
+  const UserContext = useContext(userContext);
+
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (UserContext?.user?.name) {
-        const msg = await BE.getMessages(UserContext.user.name, receiver)
-        setMessages(msg)
+    const fetchReceivers = async () => {
+      if (UserContext?.user) {
+        const receivers = await BE.getReceivers(UserContext?.user.name);
+        setReceivers(() => receivers);
       }
-    }
-      
-    const unsubscribe = UserContext?.user?.name ? BE.messageListener(UserContext.user.name, receiver, handleListenerChange) : () => {return}
-    fetchMessages()
-    return () => unsubscribe()
-  }, [])
+    };
+    fetchReceivers();
+  }, [UserContext?.user]);
 
-  return <SafeAreaView>
-    {MessageView(messages)}
-    <TextController receiver={receiver}/>
-  </SafeAreaView>
-}
+  return (
+    <Stack.Navigator initialRouteName="Conversations">
+      <Stack.Screen
+        name={"Conversations"}
+        children={(props) => (
+          <ConversationView receivers={receivers} {...props} />
+        )}
+      />
+      <Stack.Screen
+        name={"Messages"}
+        children={(props) => <MessagesView messages={[]} {...props} />}
+      />
+    </Stack.Navigator>
+  );
+};
 
-export default Messaging
+export default Messaging;
