@@ -8,7 +8,7 @@ import RequestDetail from "./components/requestDetail";
 import RequestForm from "./components/requestForm";
 const Stack = createStackNavigator();
 
-const Main = () => {
+const Requests = () => {
   const UserContext = useContext(userContext);
   const [openRequests, setOpenRequests] = useState<EatRequest[]>([]);
 
@@ -49,7 +49,7 @@ const Main = () => {
   }, [UserContext?.locations]);
 
   return (
-    <Stack.Navigator initialRouteName="Form">
+    <Stack.Navigator initialRouteName="Requests">
       <Stack.Screen
         name={"Requests"}
         children={(props) => (
@@ -68,4 +68,4 @@ const Main = () => {
   );
 };
 
-export default Main;
+export default Requests;

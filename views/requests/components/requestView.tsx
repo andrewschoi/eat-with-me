@@ -9,6 +9,9 @@ type RequestViewProps = StackScreenProps<any> & {
 };
 
 const RequestView = ({ navigation, openRequests }: RequestViewProps) => {
+  const handleNavigateToForm = () => {
+    navigation.navigate("Form");
+  };
   return (
     <View>
       <ScrollView>

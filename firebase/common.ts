@@ -100,7 +100,7 @@ const requestConverter = (doc: DocumentData) : EatRequest  => {
 const userConverter = (doc: DocumentData) : User => {
   return {
     "name": doc.data().name,
-    "activeRequests": doc.data().activeRequests
+    "activeRequests": Number(doc.data().activeRequests)
   }
 }
 
@@ -159,7 +159,7 @@ const getUser = async (name : string) => {
   const userQuery = createUserQuery(name);
   const querySnapshot = await getDocs(userQuery);
   if (!querySnapshot.empty) {
-    return userConverter(querySnapshot.docs[0].data())
+    return userConverter(querySnapshot.docs[0])
   }
   return null
 }
