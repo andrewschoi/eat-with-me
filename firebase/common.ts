@@ -125,7 +125,7 @@ const requestConverter = (doc: DocumentData): EatRequest => {
 const userConverter = (doc: DocumentData): User => {
   return {
     name: doc.data().name,
-    activeRequests: Number(doc.data().activeRequests),
+    hasActiveRequest: Boolean(doc.data().hasActiveRequest),
   };
 };
 
@@ -154,6 +154,8 @@ const addPendingMatch = async (
     );
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((docu) => deleteDoc(doc(db, "requests", docu.id)));
+    setHasActiveRequest(user1, false);
+    setHasActiveRequest(user2, false);
   }
   return success;
 };
@@ -217,8 +219,8 @@ const addMessage = async (
   return success;
 };
 
-const getUser = async (name: string) => {
-  const userQuery = createUserQuery(name);
+const getUser = async (user: string) => {
+  const userQuery = createUserQuery(user);
   const querySnapshot = await getDocs(userQuery);
   if (!querySnapshot.empty) {
     return userConverter(querySnapshot.docs[0]);
@@ -226,13 +228,33 @@ const getUser = async (name: string) => {
   return null;
 };
 
-const addRequest = async (user: string, loc: string): Promise<boolean> => {
-  const requestId = createRequestId(user, loc);
+const setHasActiveRequest = async (user: string, hasActiveRequest: boolean) => {
+  setDoc(
+    doc(collection(db, "users"), user),
+    { hasActiveRequest: hasActiveRequest },
+    { merge: true }
+  );
+};
+
+const addRequest = async (name: string, loc: string): Promise<boolean> => {
+  const user = await getUser(name);
+
+  if (user === null || user?.hasActiveRequest) {
+    console.log(
+      `${name} cannot add a request, as ${name} already has some active request`
+    );
+    return false;
+  }
+
+  const requestId = createRequestId(name, loc);
   const docRef = doc(collection(db, "requests"), requestId);
-  const request = createEatRequests(loc, user);
-  const success = setDoc(docRef, request)
+  const request = createEatRequests(loc, name);
+  const success = await setDoc(docRef, request)
     .then(() => true)
     .catch(() => false);
+  if (success) {
+    setHasActiveRequest(name, true);
+  }
   return success;
 };
 

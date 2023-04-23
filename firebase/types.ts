@@ -6,7 +6,7 @@ type EatRequest = {
 
 type User = {
   name: string;
-  activeRequests: number;
+  hasActiveRequest: boolean;
 };
 
 type Message = {
