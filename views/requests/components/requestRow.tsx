@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { EatRequest } from "../../../firebase/types";
+import userContext from "../../../contexts/userContext";
 import { StackNavigationProp } from "@react-navigation/stack";
+import * as BE from "../../../firebase/common";
 
 type RequestRowProps = {
   request: EatRequest;
@@ -15,12 +17,35 @@ type RequestRowProps = {
 };
 
 const RequestRow = ({ request, navigation }: RequestRowProps) => {
+  const UserContext = useContext(userContext);
+
   const handleNavigateToDetail = () => {
     navigation.navigate("Detail", { request: request });
   };
 
-  const handleAccept = () => {
-    console.log("Request accepted");
+  const handleAccept = async () => {
+    if (UserContext?.user === null || UserContext?.user.name === undefined) {
+      console.log("user is null, cannot accept request");
+      return;
+    }
+
+    if (!BE.canAcceptRequest(UserContext.user.name, request)) {
+      console.log(
+        `${UserContext.user.name} cannot accept ${UserContext.user.name} own request`
+      );
+      return;
+    }
+
+    const user1 = UserContext?.user.name;
+    const user2 = request.requester;
+    const location = request.location;
+    const pendingMatch = BE.createPendingMatch(user1, user2, location);
+    const success = await BE.addPendingMatch(user1, user2, location);
+    if (success) {
+      navigation.navigate("Pending Match", {
+        pendingMatch: pendingMatch,
+      });
+    }
   };
 
   return (

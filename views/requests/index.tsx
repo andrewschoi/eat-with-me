@@ -6,6 +6,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import RequestView from "./components/requestView";
 import RequestDetail from "./components/requestDetail";
 import RequestForm from "./components/requestForm";
+import MatchView from "./components/matchView";
 const Stack = createStackNavigator();
 
 const Requests = () => {
@@ -64,6 +65,7 @@ const Requests = () => {
         name={"Form"}
         children={(props) => <RequestForm {...props} />}
       />
+      <Stack.Screen name={"Pending Match"} component={MatchView} />
     </Stack.Navigator>
   );
 };
