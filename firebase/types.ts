@@ -1,30 +1,30 @@
 type EatRequest = {
-  location: string,
-  timestamp: string,
-  requester: string
-}
+  location: string;
+  timestamp: string;
+  requester: string;
+};
 
 type User = {
-  name: string,
-  activeRequests: number,
-}
+  name: string;
+  activeRequests: number;
+};
 
 type Message = {
-  id: string[],
-  timestamp: string,
-  content: string
-}
+  id: string[];
+  timestamp: string;
+  content: string;
+};
 
 type DiningHall = {
-  latitude: number,
-  longitude: number,
-  name: string
-}
+  latitude: number;
+  longitude: number;
+  name: string;
+};
 
 type PendingMatch = {
-  people: string[],
-  location: string,
-  timestamp: string
-}
+  people: string[];
+  location: string;
+  timestamp: string;
+};
 
-export {EatRequest, User, Message, DiningHall, PendingMatch};
+export { EatRequest, User, Message, DiningHall, PendingMatch };
