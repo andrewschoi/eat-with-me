@@ -7,6 +7,7 @@ type EatRequest = {
 type User = {
   name: string;
   hasActiveRequest: boolean;
+  hasPendingMatch: boolean;
 };
 
 type Message = {

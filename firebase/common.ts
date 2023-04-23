@@ -126,6 +126,7 @@ const userConverter = (doc: DocumentData): User => {
   return {
     name: doc.data().name,
     hasActiveRequest: Boolean(doc.data().hasActiveRequest),
+    hasPendingMatch: Boolean(doc.data().hasPendingMatch),
   };
 };
 
@@ -270,6 +271,10 @@ const getReceivers = async (user: string) => {
   return receivers;
 };
 
+const canAcceptRequest = (user: string, request: EatRequest) => {
+  return user !== request.requester;
+};
+
 const getRequests = async (loc: string): Promise<EatRequest[]> => {
   const requests: EatRequest[] = [];
   const docs = await getDocs(createRequestsQuery(loc));
@@ -329,4 +334,6 @@ export {
   deletePendingMatch,
   getPendingMatch,
   userListener,
+  createPendingMatch,
+  canAcceptRequest,
 };
