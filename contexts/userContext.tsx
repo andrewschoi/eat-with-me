@@ -30,12 +30,25 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     getPermissions();
   }, []);
 
+  const handleUserChange = (user: User) => {
+    setUser(user);
+  };
+
+  useEffect(() => {
+    const unsubcribe =
+      user !== null
+        ? BE.userListener(user.name, handleUserChange)
+        : () => {
+            return;
+          };
+    return () => unsubcribe();
+  }, [user?.name]);
+
   const userContextValue = {
     user,
     setUser,
     locations,
   };
-
   return (
     <userContext.Provider value={userContextValue}>
       {children}

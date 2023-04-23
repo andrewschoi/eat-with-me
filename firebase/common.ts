@@ -304,6 +304,16 @@ const createUser = async (name: string): Promise<boolean> => {
   return false;
 };
 
+const userListener = (
+  name: string,
+  handler: (arg1: User) => any
+): (() => void) => {
+  const unsub = onSnapshot(doc(db, "users", name), (doc) =>
+    handler(userConverter(doc))
+  );
+  return unsub;
+};
+
 export {
   requestsListener,
   getRequests,
@@ -318,4 +328,5 @@ export {
   addPendingMatch,
   deletePendingMatch,
   getPendingMatch,
+  userListener,
 };
