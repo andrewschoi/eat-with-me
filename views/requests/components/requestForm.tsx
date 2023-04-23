@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { StackNavigationProp } from "@react-navigation/stack";
 import userContext from "../../../contexts/userContext";
 import { Picker } from "@react-native-picker/picker";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text, View, Button } from "react-native";
 import * as BE from "../../../firebase/common";
 
 type RequestFormProps = {
@@ -28,22 +28,20 @@ const RequestForm = (navigation: RequestFormProps) => {
       const success = await BE.addRequest(name, selectedLocation);
     }
   };
-
   return (
     <View>
       <Picker
         selectedValue={selectedLocation}
         onValueChange={(itemValue) => setSelectedLocation(itemValue)}
       >
+        <Picker.Item key={""} label={""} />
         {locationsInRad.length > 0
           ? locationsInRad.map((loc) => (
               <Picker.Item key={loc} value={loc} label={loc} />
             ))
           : null}
       </Picker>
-      <Pressable onPress={handleRequestAdd}>
-        <Text>Broadcast Request</Text>
-      </Pressable>
+      <Button onPress={handleRequestAdd} title="broadcast request" />
     </View>
   );
 };
