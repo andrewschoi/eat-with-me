@@ -73,9 +73,9 @@ const styles = StyleSheet.create({
     height: 150,
     marginHorizontal: 15,
     marginVertical: 10,
-    backgroundColor: "black",
+    backgroundColor: "white",
     borderRadius: 10,
-    borderColor: "black",
+    borderColor: "white",
     borderWidth: 2,
     justifyContent: "space-between",
     alignItems: "flex-start",
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "white",
+    color: "black",
   },
   secondaryText: {
     fontSize: 15,

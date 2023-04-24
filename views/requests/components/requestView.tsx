@@ -14,7 +14,7 @@ const RequestView = ({ navigation, openRequests }: RequestViewProps) => {
     navigation.navigate("Form");
   };
   return (
-    <View>
+    <View style={styles.container}>
       <ScrollView>
         {openRequests.map((req: any) => (
           <RequestRow
@@ -34,14 +34,17 @@ const RequestView = ({ navigation, openRequests }: RequestViewProps) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   addButton: {
-    backgroundColor: "black",
+    backgroundColor: "white",
     padding: 10,
     width: 55,
     overflow: "hidden",
     borderTopRightRadius: 50,
     borderBottomRightRadius: 50,
-    marginTop: 10,
+    marginBottom: 10,
   }
 });
 
