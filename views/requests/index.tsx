@@ -59,7 +59,7 @@ const Requests = () => {
       />
       <Stack.Screen
         name={"Detail"}
-        children={(props) => <RequestDetail request={null} {...props} />}
+        children={(props) => <RequestDetail {...props} />}
       />
       <Stack.Screen
         name={"Form"}
