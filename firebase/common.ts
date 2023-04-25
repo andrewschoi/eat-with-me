@@ -157,22 +157,25 @@ const addPendingMatch = async (
     querySnapshot.forEach((docu) => deleteDoc(doc(db, "requests", docu.id)));
     setHasActiveRequest(user1, false);
     setHasActiveRequest(user2, false);
+    setHasPendingMatch(user1, true);
+    setHasPendingMatch(user2, true);
   }
   return success;
 };
 
 const getPendingMatch = async (user: string): Promise<PendingMatch> => {
   const q = query(
-    collection(db, "pendingMatch"),
+    collection(db, "pendingMatches"),
     where("people", "array-contains", user)
   );
   const querySnapshot = await getDocs(q);
+  console.log(querySnapshot);
   return querySnapshot.docs.map((doc) => pendingMatchConverter(doc))[0];
 };
 
 const deletePendingMatch = async (user: string): Promise<void> => {
   const q = query(
-    collection(db, "pendingMatch"),
+    collection(db, "pendingMatches"),
     where("people", "array-contains", user)
   );
   const querySnapshot = await getDocs(q);
@@ -233,6 +236,14 @@ const setHasActiveRequest = async (user: string, hasActiveRequest: boolean) => {
   setDoc(
     doc(collection(db, "users"), user),
     { hasActiveRequest: hasActiveRequest },
+    { merge: true }
+  );
+};
+
+const setHasPendingMatch = async (user: string, hasPendingMatch: boolean) => {
+  setDoc(
+    doc(collection(db, "users"), user),
+    { hasPendingMatch: hasPendingMatch },
     { merge: true }
   );
 };
