@@ -41,11 +41,6 @@ const RequestRow = ({ request, navigation }: RequestRowProps) => {
     const location = request.location;
     const pendingMatch = BE.createPendingMatch(user1, user2, location);
     const success = await BE.addPendingMatch(user1, user2, location);
-    if (success) {
-      navigation.navigate("Pending Match", {
-        pendingMatch: pendingMatch,
-      });
-    }
   };
 
   return (

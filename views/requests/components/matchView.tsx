@@ -1,19 +1,30 @@
-import React from "react";
-import { StackScreenProps } from "@react-navigation/stack";
-import { View, Text } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import { SafeAreaView, Text } from "react-native";
 import { PendingMatch } from "../../../firebase/types";
+import userContext from "../../../contexts/userContext";
+import * as BE from "../../../firebase/common";
 
-type MatchViewProps = StackScreenProps<any>;
+const MatchView = () => {
+  const UserContext = useContext(userContext);
+  const [pendingMatch, setPendingMatch] = useState<PendingMatch | null>(null);
 
-const MatchView = ({ route }: MatchViewProps) => {
-  const pendingMatch: PendingMatch = route.params?.pendingMatch;
+  useEffect(() => {
+    const fetchData = async () => {
+      if (UserContext !== null && UserContext.user !== null) {
+        const pendingMatch = await BE.getPendingMatch(UserContext.user.name);
+        setPendingMatch(pendingMatch);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
-    <View>
-      <Text>{pendingMatch.people[0]}</Text>
-      <Text>{pendingMatch.people[1]}</Text>
-      <Text>{pendingMatch.location}</Text>
-      <Text>{pendingMatch.timestamp}</Text>
-    </View>
+    <SafeAreaView>
+      <Text>{pendingMatch?.people[0]}</Text>
+      <Text>{pendingMatch?.people[1]}</Text>
+      <Text>{pendingMatch?.location}</Text>
+      <Text>{pendingMatch?.timestamp}</Text>
+    </SafeAreaView>
   );
 };
 

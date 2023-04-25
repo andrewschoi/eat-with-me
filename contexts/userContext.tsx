@@ -49,6 +49,7 @@ const UserProvider = ({ children }: { children: ReactNode }) => {
     setUser,
     locations,
   };
+
   return (
     <userContext.Provider value={userContextValue}>
       {children}

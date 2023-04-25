@@ -49,6 +49,7 @@ const Requests = () => {
     return () => unsubscribeListeners();
   }, [UserContext?.locations]);
 
+  if (UserContext?.user?.hasPendingMatch) return <MatchView />;
   return (
     <Stack.Navigator initialRouteName="Requests">
       <Stack.Screen
@@ -65,7 +66,6 @@ const Requests = () => {
         name={"Form"}
         children={(props) => <RequestForm {...props} />}
       />
-      <Stack.Screen name={"Pending Match"} component={MatchView} />
     </Stack.Navigator>
   );
 };
