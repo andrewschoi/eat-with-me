@@ -1,30 +1,99 @@
 import React, { useState, useEffect, useContext } from "react";
-import { SafeAreaView, Text } from "react-native";
-import { PendingMatch } from "../../../firebase/types";
+import { View, SafeAreaView, Text, TextInput, Pressable } from "react-native";
+import { PendingMatch, Message } from "../../../firebase/types";
 import userContext from "../../../contexts/userContext";
 import * as BE from "../../../firebase/common";
 
 const MatchView = () => {
   const UserContext = useContext(userContext);
+  const [unsubscribe, setUnsubscribe] = useState<(() => void)[]>([]);
   const [pendingMatch, setPendingMatch] = useState<PendingMatch | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  const _onMessageHandler = (messages: Message[]) => {
+    const orderedMessages = BE.sortMessagesByTimestamp(messages);
+    setMessages(() => orderedMessages);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       if (UserContext !== null && UserContext.user !== null) {
         const pendingMatch = await BE.getPendingMatch(UserContext.user.name);
         setPendingMatch(pendingMatch);
+
+        const [user1, user2] = pendingMatch.people;
+        const messages = await BE.getMessages(user1, user2);
+        setMessages(messages);
+        const messageListener = await BE.messageListener(
+          user1,
+          user2,
+          _onMessageHandler
+        );
+        setUnsubscribe((prev) => [...prev, messageListener]);
       }
     };
     fetchData();
+    return () => unsubscribe.forEach((unsub) => unsub());
   }, []);
 
   return (
     <SafeAreaView>
-      <Text>{pendingMatch?.people[0]}</Text>
-      <Text>{pendingMatch?.people[1]}</Text>
-      <Text>{pendingMatch?.location}</Text>
-      <Text>{pendingMatch?.timestamp}</Text>
+      <MessageView messages={messages} />
+      <TextField pendingMatch={pendingMatch} />
     </SafeAreaView>
+  );
+};
+
+const TextField = ({ pendingMatch }: { pendingMatch: PendingMatch | null }) => {
+  const UserContext = useContext(userContext);
+  const [text, onChangeText] = useState<string>("");
+  const _handleMessageSend = async () => {
+    if (pendingMatch !== null && UserContext && UserContext.user) {
+      const [user1, user2] = pendingMatch.people;
+      const sender = UserContext.user.name;
+      const success = BE.addMessage(user1, user2, text, sender);
+    }
+  };
+  return (
+    <View>
+      <TextInput
+        onChangeText={onChangeText}
+        value={text}
+        placeholder="Enter your message."
+        keyboardType="default"
+      />
+      <Pressable onPress={_handleMessageSend}>
+        <Text>Send</Text>
+      </Pressable>
+    </View>
+  );
+};
+
+const MessageView = ({ messages }: { messages: Message[] }) => {
+  const UserContext = useContext(userContext);
+
+  const isFromSender = (message: Message) => {
+    if (UserContext !== null && UserContext.user !== null)
+      return UserContext.user.name === message.sender;
+    return false;
+  };
+
+  return (
+    <View>
+      {messages.map((message, i) => {
+        if (isFromSender(message))
+          return <MessageBubble key={i} message={message} />;
+        return <MessageBubble key={i} message={message} />;
+      })}
+    </View>
+  );
+};
+
+const MessageBubble = ({ message }: { message: Message }) => {
+  return (
+    <View>
+      <Text>{message.content}</Text>
+    </View>
   );
 };
 
