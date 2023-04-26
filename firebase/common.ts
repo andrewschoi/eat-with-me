@@ -60,8 +60,8 @@ const getLocationsInRadius = (locObj: Location.LocationObject): string[] => {
   }).map((diningHall) => diningHall.name);
 };
 
-const createRequestsQuery = (loc: string): Query => {
-  return query(collection(db, "requests"), where("location", "==", loc));
+const createRequestsQuery = (loc: string[]): Query => {
+  return query(collection(db, "requests"), where("location", "in", loc));
 };
 
 const createUserQuery = (name: string): Query => {
@@ -166,13 +166,15 @@ const addPendingMatch = async (
   return success;
 };
 
-const getPendingMatch = async (user: string): Promise<PendingMatch> => {
+const getPendingMatch = async (user: string): Promise<PendingMatch | null> => {
   const q = query(
     collection(db, "pendingMatches"),
     where("people", "array-contains", user)
   );
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map((doc) => pendingMatchConverter(doc))[0];
+  if (querySnapshot.docs.length > 0)
+    return querySnapshot.docs.map((doc) => pendingMatchConverter(doc))[0];
+  return null;
 };
 
 const deletePendingMatch = async (user: string): Promise<void> => {
@@ -182,7 +184,7 @@ const deletePendingMatch = async (user: string): Promise<void> => {
   );
   const querySnapshot = await getDocs(q);
   querySnapshot.docs.forEach((docu) =>
-    deleteDoc(doc(db, "pendingMatch", docu.id))
+    deleteDoc(doc(db, "pendingMatches", docu.id))
   );
 };
 
@@ -253,7 +255,7 @@ const setHasPendingMatch = async (user: string, hasPendingMatch: boolean) => {
 
 const clearPendingMatch = async (
   user: string,
-  pendingMatch: PendingMatch
+  pendingMatch: PendingMatch | null
 ): Promise<boolean> => {
   const success = await setDoc(
     doc(collection(db, "users"), user),
@@ -263,8 +265,9 @@ const clearPendingMatch = async (
     .then(() => true)
     .catch(() => false);
 
-  if (success) {
+  if (success && pendingMatch !== null) {
     const [user1, user2] = pendingMatch.people;
+    await deletePendingMatch(user1);
     addMessage(user1, user2, `${user} has left the chat`, user);
   }
   return success;
@@ -307,7 +310,7 @@ const canAcceptRequest = (user: string, request: EatRequest) => {
   return user !== request.requester;
 };
 
-const getRequests = async (loc: string): Promise<EatRequest[]> => {
+const getRequests = async (loc: string[]): Promise<EatRequest[]> => {
   const requests: EatRequest[] = [];
   const docs = await getDocs(createRequestsQuery(loc));
   docs.forEach((doc) => requests.push(requestConverter(doc)));
@@ -315,13 +318,13 @@ const getRequests = async (loc: string): Promise<EatRequest[]> => {
 };
 
 const requestsListener = (
-  loc: string,
-  handler: (request: EatRequest[], location: string) => any
+  loc: string[],
+  handler: (request: EatRequest[]) => any
 ): (() => void) => {
   const unsubscribe = onSnapshot(createRequestsQuery(loc), (querySnapshot) => {
     const requests: EatRequest[] = [];
     querySnapshot.forEach((doc) => requests.push(requestConverter(doc)));
-    handler(requests, loc);
+    handler(requests);
   });
   return () => unsubscribe();
 };
