@@ -186,10 +186,6 @@ const deletePendingMatch = async (user: string): Promise<void> => {
   );
 };
 
-const clearPendingMatch = async (user: string): Promise<void> => {
-  setHasActiveRequest(user, false);
-};
-
 const messageListener = (
   user1: string,
   user2: string,
@@ -255,6 +251,24 @@ const setHasPendingMatch = async (user: string, hasPendingMatch: boolean) => {
   );
 };
 
+const clearPendingMatch = async (
+  user: string,
+  pendingMatch: PendingMatch
+): Promise<boolean> => {
+  const success = await setDoc(
+    doc(collection(db, "users"), user),
+    { hasPendingMatch: false, hasActiveRequest: false },
+    { merge: true }
+  )
+    .then(() => true)
+    .catch(() => false);
+
+  if (success) {
+    const [user1, user2] = pendingMatch.people;
+    addMessage(user1, user2, `${user} has left the chat`, user);
+  }
+  return success;
+};
 const addRequest = async (name: string, loc: string): Promise<boolean> => {
   const user = await getUser(name);
 
