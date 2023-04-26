@@ -39,8 +39,28 @@ const MatchView = () => {
   return (
     <SafeAreaView>
       <MessageView messages={messages} />
+      <ClearPendingMatch pendingMatch={pendingMatch} />
       <TextField pendingMatch={pendingMatch} />
     </SafeAreaView>
+  );
+};
+
+const ClearPendingMatch = ({
+  pendingMatch,
+}: {
+  pendingMatch: PendingMatch | null;
+}) => {
+  const UserContext = useContext(userContext);
+  const _handleClearPendingMatch = async () => {
+    if (pendingMatch !== null && UserContext && UserContext.user)
+      BE.clearPendingMatch(UserContext.user.name, pendingMatch);
+  };
+  return (
+    <View>
+      <Pressable onPress={_handleClearPendingMatch}>
+        <Text>Found your friend?</Text>
+      </Pressable>
+    </View>
   );
 };
 
