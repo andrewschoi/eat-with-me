@@ -1,6 +1,6 @@
 type EatRequest = {
   location: string;
-  timestamp: string;
+  timestamp: number;
   requester: string;
 };
 
@@ -12,8 +12,9 @@ type User = {
 
 type Message = {
   id: string[];
-  timestamp: string;
+  timestamp: number;
   content: string;
+  sender: string;
 };
 
 type DiningHall = {
@@ -25,7 +26,7 @@ type DiningHall = {
 type PendingMatch = {
   people: string[];
   location: string;
-  timestamp: string;
+  timestamp: number;
 };
 
 export { EatRequest, User, Message, DiningHall, PendingMatch };

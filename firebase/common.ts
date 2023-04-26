@@ -81,7 +81,7 @@ const createRequestId = (name: string, loc: string): string => {
 const createEatRequests = (loc: string, requester: string): EatRequest => {
   return {
     location: loc,
-    timestamp: new Date().toLocaleTimeString(),
+    timestamp: new Date().valueOf(),
     requester: requester,
   };
 };
@@ -89,12 +89,14 @@ const createEatRequests = (loc: string, requester: string): EatRequest => {
 const createMessage = (
   user1: string,
   user2: string,
-  content: string
+  content: string,
+  sender: string
 ): Message => {
   return {
     id: [user1, user2],
-    timestamp: new Date().toLocaleTimeString(),
+    timestamp: new Date().valueOf(),
     content: content,
+    sender: sender,
   };
 };
 
@@ -135,6 +137,7 @@ const messageConverter = (doc: DocumentData): Message => {
     id: doc.data().id,
     timestamp: doc.data().timestamp,
     content: doc.data().content,
+    sender: doc.data().sender,
   };
 };
 
@@ -169,7 +172,6 @@ const getPendingMatch = async (user: string): Promise<PendingMatch> => {
     where("people", "array-contains", user)
   );
   const querySnapshot = await getDocs(q);
-  console.log(querySnapshot);
   return querySnapshot.docs.map((doc) => pendingMatchConverter(doc))[0];
 };
 
@@ -184,10 +186,14 @@ const deletePendingMatch = async (user: string): Promise<void> => {
   );
 };
 
+const clearPendingMatch = async (user: string): Promise<void> => {
+  setHasActiveRequest(user, false);
+};
+
 const messageListener = (
   user1: string,
   user2: string,
-  handler: (arg1: Message[]) => any
+  handler: (message: Message[]) => any
 ): (() => void) => {
   const conversationId: string = createMessageId(user1, user2);
   const messageRef = collection(db, `conversations/${conversationId}/messages`);
@@ -210,13 +216,14 @@ const getMessages = async (
 const addMessage = async (
   user1: string,
   user2: string,
-  content: string
+  content: string,
+  sender: string
 ): Promise<boolean> => {
   const conversationId: string = createMessageId(user1, user2);
   const messageRef = doc(
     collection(db, `conversations/${conversationId}/messages`)
   );
-  const message = createMessage(user1, user2, content);
+  const message = createMessage(user1, user2, content, sender);
   const success = setDoc(messageRef, message)
     .then(() => true)
     .catch(() => false);
@@ -295,7 +302,7 @@ const getRequests = async (loc: string): Promise<EatRequest[]> => {
 
 const requestsListener = (
   loc: string,
-  handler: (arg1: EatRequest[], arg2: string) => any
+  handler: (request: EatRequest[], location: string) => any
 ): (() => void) => {
   const unsubscribe = onSnapshot(createRequestsQuery(loc), (querySnapshot) => {
     const requests: EatRequest[] = [];
@@ -330,6 +337,16 @@ const userListener = (
   return unsub;
 };
 
+const sortMessagesByTimestamp = (messages: Message[]) => {
+  const comparator = (msg1: Message, msg2: Message): number => {
+    if (msg1.timestamp > msg2.timestamp) return 1;
+    else if (msg1.timestamp === msg2.timestamp) return 0;
+    else return -1;
+  };
+
+  return messages.sort(comparator);
+};
+
 export {
   requestsListener,
   getRequests,
@@ -347,4 +364,6 @@ export {
   userListener,
   createPendingMatch,
   canAcceptRequest,
+  clearPendingMatch,
+  sortMessagesByTimestamp,
 };
