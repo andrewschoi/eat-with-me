@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import userContext from "../../contexts/userContext";
 import * as BE from "../../firebase/common";
 import { EatRequest } from "../../firebase/types";
@@ -13,36 +13,27 @@ const Requests = () => {
   const UserContext = useContext(userContext);
   const [openRequests, setOpenRequests] = useState<EatRequest[]>([]);
 
-  const handleListenerChange = (requests: EatRequest[], loc: string) => {
-    const openReq = openRequests
-      .filter((req) => req.location !== loc)
-      .concat(requests);
-    setOpenRequests(() => openReq);
+  const handleListenerChange = (requests: EatRequest[]) => {
+    setOpenRequests(() => requests);
   };
 
   useEffect(() => {
     const fetchRequests = async () => {
-      const requests: Promise<EatRequest[]>[] = [];
       if (UserContext?.locations) {
-        UserContext.locations.forEach((loc) =>
-          requests.push(BE.getRequests(loc))
-        );
+        const requests = await BE.getRequests(UserContext.locations);
+        setOpenRequests(() => requests);
       }
-
-      const openReq = (await Promise.all(requests)).flat();
-      setOpenRequests(() => openReq);
     };
 
     const createListeners = () => {
       if (UserContext?.locations) {
-        const listeners = UserContext.locations.map((loc) =>
-          BE.requestsListener(loc, handleListenerChange)
+        const unsub = BE.requestsListener(
+          UserContext.locations,
+          handleListenerChange
         );
-        return () => listeners.forEach((unsub) => unsub());
+        return () => unsub();
       }
-      return () => {
-        return;
-      };
+      return () => {};
     };
     const unsubscribeListeners = createListeners();
     fetchRequests();
@@ -50,6 +41,7 @@ const Requests = () => {
   }, [UserContext?.locations]);
 
   if (UserContext?.user?.hasPendingMatch) return <MatchView />;
+
   return (
     <Stack.Navigator initialRouteName="Requests">
       <Stack.Screen

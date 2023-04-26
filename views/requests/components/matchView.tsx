@@ -19,9 +19,11 @@ const MatchView = () => {
     const fetchData = async () => {
       if (UserContext !== null && UserContext.user !== null) {
         const pendingMatch = await BE.getPendingMatch(UserContext.user.name);
+        if (pendingMatch === null) return;
         setPendingMatch(pendingMatch);
 
         const [user1, user2] = pendingMatch.people;
+
         const messages = await BE.getMessages(user1, user2);
         setMessages(messages);
         const messageListener = await BE.messageListener(
@@ -52,7 +54,7 @@ const ClearPendingMatch = ({
 }) => {
   const UserContext = useContext(userContext);
   const _handleClearPendingMatch = async () => {
-    if (pendingMatch !== null && UserContext && UserContext.user)
+    if (UserContext && UserContext.user)
       BE.clearPendingMatch(UserContext.user.name, pendingMatch);
   };
   return (
@@ -68,7 +70,13 @@ const TextField = ({ pendingMatch }: { pendingMatch: PendingMatch | null }) => {
   const UserContext = useContext(userContext);
   const [text, onChangeText] = useState<string>("");
   const _handleMessageSend = async () => {
-    if (pendingMatch !== null && UserContext && UserContext.user) {
+    if (pendingMatch === null) {
+      console.log(
+        "cannot send message, as the person has already left the chat room"
+      );
+      return;
+    }
+    if (UserContext && UserContext.user) {
       const [user1, user2] = pendingMatch.people;
       const sender = UserContext.user.name;
       const success = BE.addMessage(user1, user2, text, sender);
