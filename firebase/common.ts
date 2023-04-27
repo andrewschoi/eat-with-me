@@ -60,8 +60,10 @@ const getLocationsInRadius = (locObj: Location.LocationObject): string[] => {
   }).map((diningHall) => diningHall.name);
 };
 
-const createRequestsQuery = (loc: string[]): Query => {
-  return query(collection(db, "requests"), where("location", "in", loc));
+const createRequestsQuery = (loc: string[]): Query | null => {
+  if (loc.length > 0)
+    return query(collection(db, "requests"), where("location", "in", loc));
+  return null;
 };
 
 const createUserQuery = (name: string): Query => {
@@ -312,7 +314,9 @@ const canAcceptRequest = (user: string, request: EatRequest) => {
 
 const getRequests = async (loc: string[]): Promise<EatRequest[]> => {
   const requests: EatRequest[] = [];
-  const docs = await getDocs(createRequestsQuery(loc));
+  const q = createRequestsQuery(loc);
+  if (q === null) return [];
+  const docs = await getDocs(q);
   docs.forEach((doc) => requests.push(requestConverter(doc)));
   return requests;
 };
@@ -321,7 +325,9 @@ const requestsListener = (
   loc: string[],
   handler: (request: EatRequest[]) => any
 ): (() => void) => {
-  const unsubscribe = onSnapshot(createRequestsQuery(loc), (querySnapshot) => {
+  const q = createRequestsQuery(loc);
+  if (q === null) return () => {};
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
     const requests: EatRequest[] = [];
     querySnapshot.forEach((doc) => requests.push(requestConverter(doc)));
     handler(requests);
