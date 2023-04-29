@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     padding: 20,
     height: 150,
     marginHorizontal: 15,
-    marginVertical: 10,
+    marginTop: 10,
     backgroundColor: "white",
     borderRadius: 10,
     borderColor: "white",
@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "bold",
     color: "black",
+    marginTop: -6,
   },
   secondaryText: {
     fontSize: 15,
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 5,
     alignSelf: "center",
-    marginTop: 60,
+    marginTop: 65,
   },
   buttonText: {
     color: "white",
