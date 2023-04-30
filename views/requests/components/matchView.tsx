@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, SafeAreaView, Text, TextInput, Pressable } from "react-native";
+import { View, SafeAreaView, Text, TextInput, Pressable, StyleSheet, ScrollView } from "react-native";
 import { PendingMatch, Message } from "../../../firebase/types";
 import userContext from "../../../contexts/userContext";
 import * as BE from "../../../firebase/common";
@@ -40,9 +40,11 @@ const MatchView = () => {
 
   return (
     <SafeAreaView>
+      <ScrollView>
       <MessageView messages={messages} />
       <ClearPendingMatch pendingMatch={pendingMatch} />
       <TextField pendingMatch={pendingMatch} />
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -110,19 +112,53 @@ const MessageView = ({ messages }: { messages: Message[] }) => {
     <View>
       {messages.map((message, i) => {
         if (isFromSender(message))
-          return <MessageBubble key={i} message={message} />;
-        return <MessageBubble key={i} message={message} />;
+          return <MessageBubble style={[styles.senderBubble, styles.messageText, styles.senderText]} key={i} message={message} />;
+        return <MessageBubble style={[styles.receiverBubble, styles.messageText, styles.receiverText]} key={i} message={message} />;
       })}
     </View>
   );
 };
 
-const MessageBubble = ({ message }: { message: Message }) => {
+const MessageBubble = ({ style, message }: { style: object, message: Message }) => {
   return (
-    <View>
-      <Text>{message.content}</Text>
+    <View style={styles.messageContainer}>
+      <Text style={style}>{message.content}</Text>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  messageContainer: {
+    marginBottom: 8,
+  },
+  senderBubble: {
+    backgroundColor: "#0A84FF",
+    alignSelf: "flex-end",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderTopRightRadius: 0,
+    maxWidth: "70%",
+  },
+  receiverBubble: {
+    backgroundColor: "#E1E1E1",
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderTopLeftRadius: 0,
+    maxWidth: "70%",
+  },
+  messageText: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  senderText: {
+    color: "white",
+  },
+  receiverText: {
+    color: "black",
+  },
+});
 
 export default MatchView;
